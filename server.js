@@ -20,10 +20,11 @@ app.get("/", (req, res) => {
 });
 
 app.post("/api/leads", async (req, res) => {
-  const { name, email, phone, message, source } = req.body;
+  const { name, email, phone, message, enquiryFor } = req.body;
+
   const { data, error } = await supabase
     .from("leads")
-    .insert([{ name, email, phone, message, source }])
+    .insert([{ name, email, phone, message, enquiryFor }])
     .select();
 
   if (error) {
