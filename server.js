@@ -1,50 +1,41 @@
 import express from "express";
 import cors from "cors";
 import dotenv from "dotenv";
-import pkg from "pg";
+import { createClient } from "@supabase/supabase-js";
+
 dotenv.config();
-
-const { Pool } = pkg;
-
-// ✅ PostgreSQL (AWS RDS) connection pool
-const pool = new Pool({
-  host: process.env.DB_HOST,
-  user: process.env.DB_USER,
-  password: process.env.DB_PASSWORD,
-  database: process.env.DB_NAME,
-  port: process.env.DB_PORT || 5432,
-  ssl: {
-    rejectUnauthorized: false,
-  },
-});
 
 const app = express();
 app.use(cors());
 app.use(express.json());
 
-// ✅ Test route
+const supabase = createClient(
+  process.env.SUPABASE_URL,
+  process.env.SUPABASE_ANON_KEY
+);
+
+// Test route
 app.get("/", (req, res) => {
-  res.send("Backend working fine with AWS RDS!");
+  res.send("Backend working fine!");
 });
 
-// ✅ POST route for leads
 app.post("/api/leads", async (req, res) => {
-  const { name, email, phone, message, enquiryFor } = req.body;
-  try {
-    const result = await pool.query(
-      "INSERT INTO leads (name, email, phone, message, enquiryfor) VALUES ($1, $2, $3, $4, $5) RETURNING *",
-      [name, email, phone, message, enquiryFor]
-    );
+  const { name, email, phone, message, enquiryFor, source } = req.body;
 
-    res.json({ success: true, data: result.rows[0] });
-  } catch (err) {
-    console.error("❌ Database error details:", err);
-    res.status(500).json({ error: "Database error", details: err.message });
+  const { data, error } = await supabase
+    .from("leads")
+    .insert([{ name, email, phone, message, enquiry_for: enquiryFor, source }])
+    .select();
+
+  if (error) {
+    console.error(error);
+    return res.status(500).json({ error: error.message });
   }
+
+  res.json({ success: true, data });
 });
 
-// ✅ Start server
-const PORT = process.env.PORT || 5000;
-app.listen(PORT, "0.0.0.0", () => {
-  console.log(`✅ Server running on port ${PORT}`);
-});
+
+app.listen(process.env.PORT || 5001, () =>
+  console.log(`Server running on port ${process.env.PORT || 5001}`)
+);
