@@ -20,7 +20,7 @@ app.get("/", (req, res) => {
 });
 
 app.post("/api/leads", async (req, res) => {
-  const { name, email, phone, message, enquiryFor, source } = req.body;
+  const { name, email, phone, message, enquiryFor } = req.body;
 
   const { data, error } = await supabase
     .from("leads")
@@ -37,4 +37,5 @@ app.post("/api/leads", async (req, res) => {
 
 app.listen(process.env.PORT || 5001, () =>
   console.log(`Server running on port ${process.env.PORT || 5001}`)
+
 );
