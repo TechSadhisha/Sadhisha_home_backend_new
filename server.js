@@ -24,7 +24,7 @@ app.post("/api/leads", async (req, res) => {
 
   const { data, error } = await supabase
     .from("leads")
-    .insert([{ name, email, phone, message, enquiry_for: enquiryFor, source }])
+    .insert([{ name, email, phone, message, enquiry_for: enquiryFor }])
     .select();
 
   if (error) {
@@ -34,7 +34,6 @@ app.post("/api/leads", async (req, res) => {
 
   res.json({ success: true, data });
 });
-
 
 app.listen(process.env.PORT || 5001, () =>
   console.log(`Server running on port ${process.env.PORT || 5001}`)
