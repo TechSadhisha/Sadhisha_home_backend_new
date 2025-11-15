@@ -26,18 +26,16 @@ const db = mysql.createPool({
 // Nodemailer transporter
 const transporter = nodemailer.createTransport({
   host: process.env.SMTP_HOST,
-  port: process.env.SMTP_PORT,
-  secure: false, // TLS
+  port: Number(process.env.SMTP_PORT),
+  secure: process.env.SMTP_SECURE === "true",   // <---- FIXED
   auth: {
     user: process.env.SMTP_USER,
     pass: process.env.SMTP_PASS,
-  },
-  tls: {
-    rejectUnauthorized: false,
-  },
+  }
 });
 
-transporter.verify(function (error, success) {
+// Test SMTP connection
+transporter.verify((error, success) => {
   if (error) {
     console.log("SMTP ERROR:", error);
   } else {
@@ -55,7 +53,7 @@ app.post("/api/leads", async (req, res) => {
       [name, email, phone, enquiryFor, message]
     );
 
-    // Send email
+    // Try sending email
     try {
       const mailResponse = await transporter.sendMail({
         from: `"New Lead" <${process.env.SMTP_USER}>`,
@@ -68,7 +66,7 @@ app.post("/api/leads", async (req, res) => {
           <p><b>Phone:</b> ${phone}</p>
           <p><b>Enquiry For:</b> ${enquiryFor}</p>
           <p><b>Message:</b> ${message}</p>
-        `,
+        `
       });
 
       console.log("MAIL SENT:", mailResponse);
