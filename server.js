@@ -10,6 +10,11 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
+// Root test route
+app.get("/", (req, res) => {
+  res.send("Sadhisha Backend is running successfully!");
+});
+
 // MySQL connection pool
 const db = mysql.createPool({
   host: process.env.DB_HOST,
@@ -22,7 +27,7 @@ const db = mysql.createPool({
 const transporter = nodemailer.createTransport({
   host: process.env.SMTP_HOST,
   port: process.env.SMTP_PORT,
-  secure: false, // TLS, NOT SSL
+  secure: false, // TLS
   auth: {
     user: process.env.SMTP_USER,
     pass: process.env.SMTP_PASS,
@@ -51,20 +56,19 @@ app.post("/api/leads", async (req, res) => {
     );
 
     // Send email
-
     try {
       const mailResponse = await transporter.sendMail({
         from: `"New Lead" <${process.env.SMTP_USER}>`,
         to: "vignesh.sadhisha@gmail.com",
         subject: "New Lead Submitted",
         html: `
-      <h2>New Lead Details</h2>
-      <p><b>Name:</b> ${name}</p>
-      <p><b>Email:</b> ${email}</p>
-      <p><b>Phone:</b> ${phone}</p>
-      <p><b>Enquiry For:</b> ${enquiryFor}</p>
-      <p><b>Message:</b> ${message}</p>
-    `,
+          <h2>New Lead Details</h2>
+          <p><b>Name:</b> ${name}</p>
+          <p><b>Email:</b> ${email}</p>
+          <p><b>Phone:</b> ${phone}</p>
+          <p><b>Enquiry For:</b> ${enquiryFor}</p>
+          <p><b>Message:</b> ${message}</p>
+        `,
       });
 
       console.log("MAIL SENT:", mailResponse);
