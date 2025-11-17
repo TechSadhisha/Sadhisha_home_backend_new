@@ -53,12 +53,12 @@ app.post("/api/leads", async (req, res) => {
     await apiInstance.sendTransacEmail({
       sender: { 
         email: process.env.SEND_FROM, 
-        name: "Website Lead" 
+        name: "Sadhisha Worldwide – New Enquiry" 
       },
       to: [
         { email: process.env.SEND_TO }
       ],
-      subject: "New Lead Received",
+      subject: "New Lead From SadhishaWorldwide",
       htmlContent: `
         <h2>New Lead Details</h2>
         <p><strong>Name:</strong> ${name}</p>
