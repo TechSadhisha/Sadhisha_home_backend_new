@@ -2,7 +2,7 @@ import express from "express";
 import cors from "cors";
 import dotenv from "dotenv";
 import mysql from "mysql2/promise";
-import nodemailer from "nodemailer";
+import SibApiV3Sdk from "@getbrevo/brevo";
 
 dotenv.config();
 
@@ -24,12 +24,12 @@ app.get("/", (req, res) => {
   res.send("Backend working fine!");
 });
 
-// Insert Form Data + Send Email using Brevo SMTP
+// Insert Form Data + Send Email using Brevo API
 app.post("/api/leads", async (req, res) => {
   const { name, email, phone, message, enquiryFor } = req.body;
 
   try {
-    // 1. Save Lead to DB
+    // Save Lead to DB
     const query = `
       INSERT INTO leads (name, email, phone, message, enquiryFor)
       VALUES (?, ?, ?, ?, ?)
@@ -43,29 +43,30 @@ app.post("/api/leads", async (req, res) => {
       enquiryFor,
     ]);
 
-    // 2. Send Email via Brevo SMTP
-    const transporter = nodemailer.createTransport({
-      host: process.env.SMTP_HOST,
-      port: process.env.SMTP_PORT,
-      secure: true,
-      auth: {
-        user: process.env.SMTP_USER,
-        pass: process.env.SMTP_PASS,
-      },
-    });
+    // Send Email using Brevo API
+    const apiInstance = new SibApiV3Sdk.TransactionalEmailsApi();
+    apiInstance.setApiKey(
+      SibApiV3Sdk.TransactionalEmailsApiApiKeys.apiKey,
+      process.env.BREVO_API_KEY
+    );
 
-    await transporter.sendMail({
-      from: process.env.SEND_FROM,
-      to: process.env.SEND_TO,
+    await apiInstance.sendTransacEmail({
+      sender: { 
+        email: process.env.SEND_FROM, 
+        name: "Website Lead" 
+      },
+      to: [
+        { email: process.env.SEND_TO }
+      ],
       subject: "New Lead Received",
-      html: `
+      htmlContent: `
         <h2>New Lead Details</h2>
         <p><strong>Name:</strong> ${name}</p>
         <p><strong>Email:</strong> ${email}</p>
         <p><strong>Phone:</strong> ${phone}</p>
         <p><strong>Enquiry For:</strong> ${enquiryFor}</p>
         <p><strong>Message:</strong> ${message}</p>
-      `,
+      `
     });
 
     res.json({
