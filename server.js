@@ -55,7 +55,11 @@ app.post("/api/leads", async (req, res) => {
         email: process.env.SEND_FROM,
         name: "Sadhisha Worldwide – New Enquiry",
       },
-      to: [{ email: process.env.SEND_TO_1 }, { email: process.env.SEND_TO_2 }],
+      to: [
+        { email: process.env.SEND_TO_1 },
+        { email: process.env.SEND_TO_2 },
+        { email: process.env.SEND_TO_3 },
+      ],
       subject: "New Lead From SadhishaWorldwide",
       htmlContent: `
         <h2>New Lead Details</h2>
