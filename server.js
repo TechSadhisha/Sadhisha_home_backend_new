@@ -51,11 +51,13 @@ app.post("/api/leads", async (req, res) => {
     );
 
     await apiInstance.sendTransacEmail({
-      sender: {
-        email: process.env.SEND_FROM,
-        name: "Sadhisha Worldwide – New Enquiry",
+      sender: { 
+        email: process.env.SEND_FROM, 
+        name: "Sadhisha Worldwide – New Enquiry" 
       },
-      to: [{ email: process.env.SEND_TO_1 }, { email: process.env.SEND_TO_2 }],
+      to: [
+        { email: process.env.SEND_TO }
+      ],
       subject: "New Lead From SadhishaWorldwide",
       htmlContent: `
         <h2>New Lead Details</h2>
@@ -64,7 +66,7 @@ app.post("/api/leads", async (req, res) => {
         <p><strong>Phone:</strong> ${phone}</p>
         <p><strong>Enquiry For:</strong> ${enquiryFor}</p>
         <p><strong>Message:</strong> ${message}</p>
-      `,
+      `
     });
 
     res.json({
@@ -72,6 +74,7 @@ app.post("/api/leads", async (req, res) => {
       id: result.insertId,
       message: "Lead saved & email sent successfully!",
     });
+
   } catch (error) {
     console.error("ERROR:", error);
     res.status(500).json({ error: error.message });
